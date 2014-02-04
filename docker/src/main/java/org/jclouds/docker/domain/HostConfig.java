@@ -16,11 +16,11 @@
  */
 package org.jclouds.docker.domain;
 
-import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
 import org.jclouds.javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrea Turli
@@ -34,19 +34,19 @@ public class HostConfig {
    @SerializedName("Privileged")
    private boolean privileged;
    @SerializedName("PortBindings")
-   private PortBindings portBindings;
+   private Map<String, List<Map<String, String>>> portBindings;
    @SerializedName("Links")
-   private List<String> links = Lists.newArrayList();
+   private List<String> links;
    @SerializedName("PublishAllPorts")
    private boolean publishAllPorts;
 
    public HostConfig(String containerIDFile, String binds, boolean privileged,
-                     PortBindings portBindings, @Nullable List<String> links, boolean publishAllPorts) {
+                     Map<String, List<Map<String, String>>> portBindings, @Nullable List<String> links, boolean publishAllPorts) {
       this.containerIDFile = containerIDFile;
       this.binds = binds;
       this.privileged = privileged;
       this.portBindings = portBindings;
-      this.links.addAll(links);
+      this.links = links;
       this.publishAllPorts = publishAllPorts;
    }
 
@@ -62,7 +62,7 @@ public class HostConfig {
       return privileged;
    }
 
-   public PortBindings isPortBindings() {
+   public Map<String, List<Map<String, String>>> getPortBindings() {
       return portBindings;
    }
 
@@ -85,5 +85,68 @@ public class HostConfig {
               ", links=" + links +
               ", publishAllPorts=" + publishAllPorts +
               '}';
+   }
+
+   public static Builder builder() {
+      return new Builder();
+   }
+
+   public Builder toBuilder() {
+      return builder().fromHostConfig(this);
+   }
+
+   public static final class Builder {
+
+      private String containerIDFile;
+      private String binds;
+      private boolean privileged;
+      private Map<String, List<Map<String, String>>> portBindings;
+      private List<String> links;
+      private boolean publishAllPorts;
+
+      public Builder containerIDFile(String containerIDFile) {
+         this.containerIDFile = containerIDFile;
+         return this;
+      }
+
+      public Builder binds(String binds) {
+         this.binds = binds;
+         return this;
+      }
+
+      public Builder privileged(boolean privileged) {
+         this.privileged = privileged;
+         return this;
+      }
+
+      public Builder links(List<String> links) {
+         this.links = links;
+         return this;
+      }
+
+      public Builder portBindings(Map<String, List<Map<String, String>>> portBindings) {
+         this.portBindings = portBindings;
+         return this;
+      }
+
+      public Builder publishAllPorts(boolean publishAllPorts) {
+         this.publishAllPorts = publishAllPorts;
+         return this;
+      }
+
+
+      public HostConfig build() {
+         return new HostConfig(containerIDFile, binds, privileged, portBindings, links, publishAllPorts);
+      }
+
+      public Builder fromHostConfig(HostConfig in) {
+         return this
+                 .containerIDFile(in.getContainerIDFile())
+                 .binds(in.getBinds())
+                 .privileged(in.isPrivileged())
+                 .links(in.getLinks())
+                 .portBindings(in.getPortBindings())
+                 .publishAllPorts(in.isPublishAllPorts());
+      }
    }
 }

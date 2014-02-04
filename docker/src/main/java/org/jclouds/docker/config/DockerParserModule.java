@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -56,6 +57,15 @@ public class DockerParserModule extends AbstractModule {
       public Container deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws
               JsonParseException {
          Gson gson = new GsonBuilder().serializeNulls().create();
+         final JsonObject jsonObject = json.getAsJsonObject();
+
+         // container:inspect returns ID instead of Id !!!
+         if(jsonObject.has("ID")) {
+            JsonElement id = jsonObject.get("ID");
+            jsonObject.remove("ID");
+            jsonObject.add("Id", id);
+            return gson.fromJson(jsonObject, Container.class);
+         }
          return gson.fromJson(json, Container.class);
       }
 

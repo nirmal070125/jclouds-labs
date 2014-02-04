@@ -16,8 +16,6 @@
  */
 package org.jclouds.docker.domain;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Iterables;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -47,7 +45,7 @@ public class Image {
       this.tag = tag;
       this.created = created;
       this.size = size;
-      this.virtualSize= virtualSize;
+      this.virtualSize = virtualSize;
    }
 
    public String getId() {

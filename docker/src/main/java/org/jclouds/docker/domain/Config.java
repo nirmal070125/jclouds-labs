@@ -46,8 +46,8 @@ public class Config {
    private boolean attachStdout;
    @SerializedName("AttachStderr")
    private boolean attachStderr;
-   @SerializedName("PortSpecs")
-   private String portSpecs;
+   @SerializedName("ExposedPorts")
+   private Map<String, ?> exposedPorts;
    @SerializedName("Tty")
    private boolean tty;
    @SerializedName("OpenStdin")
@@ -55,11 +55,11 @@ public class Config {
    @SerializedName("StdinOnce")
    private boolean stdinOnce;
    @SerializedName("Env")
-   private String env;
+   private List<String> env;
    @SerializedName("Cmd")
    private List<String> cmd;
    @SerializedName("Dns")
-   private String dns;
+   private List<String> dns;
    @SerializedName("Image")
    private String image;
    @SerializedName("Volumes")
@@ -70,8 +70,8 @@ public class Config {
    private String workingDir;
 
    Config(String hostname, String user, int memory, int memorySwap, boolean attachStdin, boolean attachStdout,
-          boolean attachStderr, String portSpecs, boolean tty, boolean openStdin, boolean stdinOnce, String env,
-          @Nullable List<String> cmd, String dns, String image, @Nullable Map<String, Object> volumes, String volumesFrom,
+          boolean attachStderr, Map<String, ?> exposedPorts, boolean tty, boolean openStdin, boolean stdinOnce, List<String> env,
+          @Nullable List<String> cmd, List<String> dns, String image, @Nullable Map<String, Object> volumes, String volumesFrom,
           String workingDir) {
       this.hostname = hostname;
       this.user = user;
@@ -80,7 +80,7 @@ public class Config {
       this.attachStdin = attachStdin;
       this.attachStdout = attachStdout;
       this.attachStderr = attachStderr;
-      this.portSpecs = portSpecs;
+      this.exposedPorts = exposedPorts;
       this.tty = tty;
       this.openStdin = openStdin;
       this.stdinOnce = stdinOnce;
@@ -121,8 +121,8 @@ public class Config {
       return attachStderr;
    }
 
-   public String getPortSpecs() {
-      return portSpecs;
+   public Map<String, ?> getExposedPorts() {
+      return exposedPorts;
    }
 
    public boolean isTty() {
@@ -137,7 +137,7 @@ public class Config {
       return stdinOnce;
    }
 
-   public String getEnv() {
+   public List<String> getEnv() {
       return env;
    }
 
@@ -145,7 +145,7 @@ public class Config {
       return cmd;
    }
 
-   public String getDns() {
+   public List<String> getDns() {
       return dns;
    }
 
@@ -175,7 +175,7 @@ public class Config {
               .add("attachStdin", attachStdin)
               .add("attachStdout", attachStdout)
               .add("attachStderr", attachStderr)
-              .add("portSpecs", portSpecs)
+              .add("exposedPorts", exposedPorts)
               .add("tty", tty)
               .add("openStdin", openStdin)
               .add("stdinOnce", stdinOnce)
@@ -205,13 +205,13 @@ public class Config {
       private boolean attachStdin;
       private boolean attachStdout;
       private boolean attachStderr;
-      private String portSpecs;
+      private Map<String, ?> exposedPorts;
       private boolean tty;
       private boolean openStdin;
       private boolean stdinOnce;
-      private String env;
+      private List<String> env;
       private ImmutableList.Builder<String> cmd = ImmutableList.builder();
-      private String dns;
+      private List<String> dns;
       private String image;
       private ImmutableMap.Builder<String, Object> volumes = ImmutableMap.builder();
       private String volumesFrom;
@@ -252,8 +252,8 @@ public class Config {
          return this;
       }
 
-      public Builder portSpecs(String portSpecs) {
-         this.portSpecs = portSpecs;
+      public Builder exposedPorts(Map<String, ?> exposedPorts) {
+         this.exposedPorts = exposedPorts;
          return this;
       }
 
@@ -272,7 +272,7 @@ public class Config {
          return this;
       }
 
-      public Builder env(String env) {
+      public Builder env(List<String> env) {
          this.env = env;
          return this;
       }
@@ -283,7 +283,7 @@ public class Config {
          return this;
       }
 
-      public Builder dns(String dns) {
+      public Builder dns(List<String> dns) {
          this.dns = dns;
          return this;
       }
@@ -310,7 +310,7 @@ public class Config {
       }
 
       public Config build() {
-         return new Config(hostname, user, memory, memorySwap, attachStdin, attachStdout, attachStderr, portSpecs,
+         return new Config(hostname, user, memory, memorySwap, attachStdin, attachStdout, attachStderr, exposedPorts,
                  tty, openStdin, stdinOnce, env, cmd.build(), dns, image, volumes.build(), volumesFrom, workingDir);
       }
 
@@ -323,7 +323,7 @@ public class Config {
                  .attachStdin(in.isAttachStdin())
                  .attachStdout(in.isAttachStdout())
                  .attachStderr(in.isAttachStderr())
-                 .portSpecs(in.getPortSpecs())
+                 .exposedPorts(in.getExposedPorts())
                  .tty(in.isTty())
                  .openStdin(in.isOpenStdin())
                  .stdinOnce(in.isStdinOnce())

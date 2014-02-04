@@ -16,7 +16,7 @@
  */
 package org.jclouds.docker;
 
-import org.jclouds.docker.features.RemoteApi;
+import org.jclouds.docker.compute.features.RemoteApi;
 import org.jclouds.rest.annotations.Delegate;
 
 import java.io.Closeable;

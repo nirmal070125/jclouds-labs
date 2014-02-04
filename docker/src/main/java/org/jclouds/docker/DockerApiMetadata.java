@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.docker.compute.config.DockerComputeServiceContextModule;
 import org.jclouds.docker.config.DockerHttpApiModule;
 import org.jclouds.docker.config.DockerParserModule;
 import org.jclouds.rest.internal.BaseHttpApiMetadata;
@@ -55,7 +56,7 @@ public class DockerApiMetadata extends BaseHttpApiMetadata<DockerApi> {
       Properties properties = BaseHttpApiMetadata.defaultProperties();
       properties.setProperty("jclouds.ssh.max-retries", "7");
       properties.setProperty("jclouds.ssh.retry-auth", "true");
-      properties.setProperty(TEMPLATE, "osFamily=UBUNTU,os64Bit=true");
+      properties.setProperty(TEMPLATE, "osFamily=UBUNTU,os64Bit=true,osVersionMatches=1[012].[01][04]");
       return properties;
    }
 
@@ -76,7 +77,8 @@ public class DockerApiMetadata extends BaseHttpApiMetadata<DockerApi> {
                .view(typeToken(ComputeServiceContext.class))
                .defaultModules(ImmutableSet.<Class<? extends Module>>of(
                        DockerHttpApiModule.class,
-                       DockerParserModule.class));
+                       DockerParserModule.class,
+                       DockerComputeServiceContextModule.class));
       }
 
       @Override

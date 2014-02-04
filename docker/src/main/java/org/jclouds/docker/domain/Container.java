@@ -19,6 +19,7 @@ package org.jclouds.docker.domain;
 import com.google.common.base.Objects;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,10 +61,12 @@ public class Container {
    private String status;
    @SerializedName("HostConfig")
    private HostConfig hostConfig;
+   @SerializedName("Ports")
+   private List<Port> ports;
 
    public Container(String id, List<String> names, String created, String path, String[] args, Config config, State state, String image,
                     NetworkSettings networkSettings, String sysInitPath, String resolvConfPath, Volumes volumes,
-                    long sizeRw, long sizeRootFs, String command, String status, HostConfig hostConfig) {
+                    long sizeRw, long sizeRootFs, String command, String status, HostConfig hostConfig, List<Port> ports) {
       this.id = id;
       this.names = names;
       this.created = created;
@@ -81,6 +84,7 @@ public class Container {
       this.command = command;
       this.status = status;
       this.hostConfig = hostConfig;
+      this.ports = ports;
    }
 
    public String getId() {
@@ -141,27 +145,32 @@ public class Container {
 
    public HostConfig getHostConfig() { return hostConfig; }
 
+   public List<Port> getPorts() {
+      return ports;
+   }
+
    @Override
    public String toString() {
-      return Objects.toStringHelper(this)
-              .add("id", id)
-              .add("names", names)
-              .add("created", created)
-              .add("path", path)
-              .add("args", args)
-              .add("config", config)
-              .add("state", state)
-              .add("image", image)
-              .add("networkSettings", networkSettings)
-              .add("sysInitPath", sysInitPath)
-              .add("resolvConfPath", resolvConfPath)
-              .add("volumes", volumes)
-              .add("sizeRw", sizeRw)
-              .add("sizeRootFs", sizeRootFs)
-              .add("command", command)
-              .add("status", status)
-              .add("hostConfig", hostConfig)
-              .toString();
+      return "Container{" +
+              "id='" + id + '\'' +
+              ", names=" + names +
+              ", created='" + created + '\'' +
+              ", path='" + path + '\'' +
+              ", args=" + Arrays.toString(args) +
+              ", config=" + config +
+              ", state=" + state +
+              ", image='" + image + '\'' +
+              ", networkSettings=" + networkSettings +
+              ", sysInitPath='" + sysInitPath + '\'' +
+              ", resolvConfPath='" + resolvConfPath + '\'' +
+              ", volumes=" + volumes +
+              ", sizeRw=" + sizeRw +
+              ", sizeRootFs=" + sizeRootFs +
+              ", command='" + command + '\'' +
+              ", status='" + status + '\'' +
+              ", hostConfig=" + hostConfig +
+              ", ports=" + ports +
+              '}';
    }
 
    public static Builder builder() {
@@ -191,6 +200,7 @@ public class Container {
       private String command;
       private String status;
       private HostConfig hostConfig;
+      private List<Port> ports;
 
       public Builder id(String id) {
          this.id = id;
@@ -227,8 +237,8 @@ public class Container {
          return this;
       }
 
-      public Builder image(String image) {
-         this.image = image;
+      public Builder image(String imageName) {
+         this.image = imageName;
          return this;
       }
 
@@ -277,9 +287,14 @@ public class Container {
          return this;
       }
 
+      public Builder ports(List<Port> ports) {
+         this.ports = ports;
+         return this;
+      }
+
       public Container build() {
          return new Container(id, names, created, path, args, config, state, image,
-                 networkSettings, sysInitPath, resolvConfPath, volumes, sizeRw, sizeRootFs, command, status, hostConfig);
+                 networkSettings, sysInitPath, resolvConfPath, volumes, sizeRw, sizeRootFs, command, status, hostConfig, ports);
       }
 
       public Builder fromContainer(Container in) {
@@ -300,7 +315,8 @@ public class Container {
                  .sizeRootFs(in.getSizeRootFs())
                  .command(in.getCommand())
                  .status(in.getStatus())
-                 .hostConfig(in.getHostConfig());
+                 .hostConfig(in.getHostConfig())
+                 .ports(in.getPorts());
       }
    }
 }

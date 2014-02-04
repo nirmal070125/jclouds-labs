@@ -14,14 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.docker.features;
+package org.jclouds.docker.compute.features;
 
+import org.jclouds.Fallbacks;
+import org.jclouds.docker.binders.BindInputStreamToRequest;
 import org.jclouds.docker.domain.Config;
 import org.jclouds.docker.domain.Container;
+import org.jclouds.docker.domain.HostConfig;
 import org.jclouds.docker.domain.Image;
 import org.jclouds.docker.domain.Version;
+import org.jclouds.io.Payload;
+import org.jclouds.io.payloads.InputStreamPayload;
 import org.jclouds.rest.annotations.BinderParam;
+import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.Headers;
+import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
 import javax.inject.Named;
@@ -34,8 +41,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.Closeable;
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Andrea Turli
@@ -54,17 +64,6 @@ public interface RemoteApi extends Closeable {
    Version getVersion();
 
    /**
-    * Inspect a container.
-    *
-    * @return the container.
-    */
-   @Named("container:inspect")
-   @GET
-   @Path("/containers/{id}/json")
-   @Consumes(MediaType.APPLICATION_JSON)
-   Container getContainer(@PathParam("id") String id);
-
-   /**
     * List containers
     *
     * @return the running containers.
@@ -73,6 +72,7 @@ public interface RemoteApi extends Closeable {
    @GET
    @Path("/containers/json")
    @Consumes(MediaType.APPLICATION_JSON)
+   @Fallback(Fallbacks.EmptySetOnNotFoundOr404.class)
    List<Container> listContainers(
            @QueryParam("all") boolean all,
            @QueryParam("limit") String limit,
@@ -88,6 +88,7 @@ public interface RemoteApi extends Closeable {
    @GET
    @Path("/containers/json")
    @Consumes(MediaType.APPLICATION_JSON)
+   @Fallback(Fallbacks.EmptySetOnNotFoundOr404.class)
    List<Container> listContainers(
            @QueryParam("all") boolean all);
 
@@ -101,6 +102,13 @@ public interface RemoteApi extends Closeable {
    @Path("/containers/create")
    @Consumes(MediaType.APPLICATION_JSON)
    Container createContainer(@BinderParam(BindToJsonPayload.class) Config config);
+
+   @Named("container:inspect")
+   @GET
+   @Path("/containers/{id}/json")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Fallback(Fallbacks.NullOnNotFoundOr404.class)
+   Container inspectContainer(@PathParam("id") String containerId);
 
    /**
     * Delete the container.
@@ -121,7 +129,18 @@ public interface RemoteApi extends Closeable {
    @POST
    @Path("/containers/{id}/start")
    @Consumes(MediaType.APPLICATION_JSON)
-   InputStream startContainer(@PathParam("id") String containerId);
+   void startContainer(@PathParam("id") String containerId);
+
+   /**
+    * Start a container.
+    *
+    * @return the container.
+    */
+   @Named("container:start")
+   @POST
+   @Path("/containers/{id}/start")
+   @Consumes(MediaType.APPLICATION_JSON)
+   void startContainer(@PathParam("id") String containerId, @BinderParam(BindToJsonPayload.class) HostConfig hostConfig);
 
    /**
     * Stop a container.
@@ -155,8 +174,7 @@ public interface RemoteApi extends Closeable {
    @POST
    @Path("/commit")
    @Consumes(MediaType.APPLICATION_JSON)
-   @Headers(keys = "Content-Type", values = "application/tar")
-   InputStream build(
+   InputStream commit(
            @QueryParam("container") String containerId, @QueryParam("repo") String repository, @QueryParam("tag") String tag,
            @QueryParam("m") String message, @QueryParam("author") String author, @QueryParam("run") String run);
 
@@ -169,7 +187,8 @@ public interface RemoteApi extends Closeable {
    @GET
    @Path("/images/json")
    @Consumes(MediaType.APPLICATION_JSON)
-   List<Image> listImages(@QueryParam("all") boolean all);
+   @Fallback(Fallbacks.EmptySetOnNotFoundOr404.class)
+   Set<Image> listImages(@QueryParam("all") boolean all);
 
    // Image
    /**
@@ -205,15 +224,28 @@ public interface RemoteApi extends Closeable {
    @Consumes(MediaType.APPLICATION_JSON)
    InputStream deleteImage(@PathParam("name") String name);
 
+
    /**
     * Build an image from Dockerfile via stdin
     *
     */
    @Named("image:build")
    @POST
-   @Path("/images/build")
+   @Path("/build")
    @Consumes(MediaType.APPLICATION_JSON)
    @Headers(keys = "Content-Type", values = "application/tar")
-   InputStream build(
-           @QueryParam("t") String tag, @QueryParam("q") String quiet, @QueryParam("nocache") String nocache);
+   InputStream build(@QueryParam("t") String tag, Payload inputStream);
+
+   /**
+    * Build an image from Dockerfile via stdin
+    *
+    */
+   @Named("image:build")
+   @POST
+   @Path("/build")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Headers(keys = "Content-Type", values = "application/tar")
+   InputStream build(@QueryParam("t") String tag, @QueryParam("q") boolean quiet, @QueryParam("nocache") boolean nocache,
+                     @BinderParam(BindInputStreamToRequest.class) File dockerFile);
+
 }

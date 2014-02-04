@@ -14,24 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.docker.features;
+package org.jclouds.docker.compute.features;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Closeables;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
+import org.jclouds.docker.compute.BaseDockerApiLiveTest;
+import org.jclouds.docker.compute.features.internal.Archives;
 import org.jclouds.docker.domain.Config;
 import org.jclouds.docker.domain.Container;
 import org.jclouds.docker.domain.Image;
+import org.jclouds.io.Payload;
+import org.jclouds.io.Payloads;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
+import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.testng.Assert.assertEquals;
 
@@ -56,8 +69,13 @@ public class RemoteApiLiveTest extends BaseDockerApiLiveTest {
    }
 
    @Test(dependsOnMethods = "testVersion")
+   public void testBuildImage() throws IOException, InterruptedException, URISyntaxException {
+      api().build("jclouds/centos", false, true, new File(Resources.getResource("centos/Dockerfile").toURI()));
+   }
+
+   @Test(dependsOnMethods = "testBuildImage")
    public void testCrudForImage() throws IOException, InterruptedException {
-      List<Image> images = api().listImages(true);
+      Set<Image> images = api().listImages(true);
       int size = images.size();
 
       InputStream createImageStream = api().createImage(DEFAULT_IMAGE);
@@ -83,12 +101,13 @@ public class RemoteApiLiveTest extends BaseDockerApiLiveTest {
               .workingDir("")
               .build();
       Container container = api().createContainer(config);
-      assertEquals(api().getContainer(container.getId()), container);
+      assertEquals(api().inspectContainer(container.getId()), container);
 
       api().removeContainer(container.getId(), true);
       assertEquals(api().listContainers(true).size(), size);
    }
 
+   @Test(dependsOnMethods = "testCrudForContainer")
    public void testStartAndStopContainer() throws IOException, InterruptedException {
       Config config = Config.builder().image(CENTOS_IMAGE)
               //.cmd(ImmutableList.of("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done"))
@@ -101,12 +120,12 @@ public class RemoteApiLiveTest extends BaseDockerApiLiveTest {
       Container container = api().createContainer(config);
       String containerId = container.getId();
       api().startContainer(containerId);
-      Assert.assertTrue(api().getContainer(containerId).getState().isRunning());
+      Assert.assertTrue(api().inspectContainer(containerId).getState().isRunning());
 
       Image image = api().commit(containerId, "sshd", "centos + ssh server");
-      List<Image> images = api().listImages(true);
+      Set<Image> images = api().listImages(true);
       api().stopContainer(containerId);
-      Assert.assertFalse(api().getContainer(containerId).getState().isRunning());
+      Assert.assertFalse(api().inspectContainer(containerId).getState().isRunning());
       api().removeContainer(containerId, true);
    }
 
@@ -123,14 +142,4 @@ public class RemoteApiLiveTest extends BaseDockerApiLiveTest {
       return api.getRemoteApi();
    }
 
-   private String consumeStream(InputStream stream, boolean swallowIOException) {
-      String result = null;
-      try {
-         result = CharStreams.toString(new InputStreamReader(stream, Charsets.UTF_8));
-         Closeables.close(stream, swallowIOException);
-      } catch (IOException e) {
-         Assert.fail();
-      }
-      return result;
-   }
 }
