@@ -58,7 +58,7 @@ public class ContainerToNodeMetadata implements Function<Container, NodeMetadata
       nodeMetadataBuilder.imageId(container.getImage());
       //nodeMetadataBuilder.hardware()
       List<String> publicIpAddresses = Lists.newArrayList();
-      publicIpAddresses.add("172.18.42.1"); // docker host
+      publicIpAddresses.add("192.168.42.43"); // docker host
       nodeMetadataBuilder.loginPort(getLoginPort(container));
       nodeMetadataBuilder.publicAddresses(publicIpAddresses);
       nodeMetadataBuilder.privateAddresses(publicIpAddresses);

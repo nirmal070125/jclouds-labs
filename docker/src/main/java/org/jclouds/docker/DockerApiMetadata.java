@@ -22,6 +22,7 @@ import static org.jclouds.reflect.Reflection2.typeToken;
 import java.net.URI;
 import java.util.Properties;
 
+import org.jclouds.Constants;
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.docker.compute.config.DockerComputeServiceContextModule;
@@ -54,8 +55,9 @@ public class DockerApiMetadata extends BaseHttpApiMetadata<DockerApi> {
 
    public static Properties defaultProperties() {
       Properties properties = BaseHttpApiMetadata.defaultProperties();
-      properties.setProperty("jclouds.ssh.max-retries", "7");
+      properties.setProperty(Constants.PROPERTY_MAX_RETRIES, "7");
       properties.setProperty("jclouds.ssh.retry-auth", "true");
+      properties.setProperty(Constants.PROPERTY_REQUEST_TIMEOUT, "1200000"); // 15 minutes
       properties.setProperty(TEMPLATE, "osFamily=UBUNTU,os64Bit=true,osVersionMatches=1[012].[01][04]");
       return properties;
    }

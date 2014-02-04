@@ -165,7 +165,8 @@ public class DockerComputeServiceAdapter implements
       }
       if(!available) {
          try {
-            api.getRemoteApi().build(imageName, false, true, new File(Resources.getResource(folderName + "/Dockerfile").toURI()));
+            api.getRemoteApi().build(imageName, false, false, new File(Resources.getResource(folderName +
+                    "/Dockerfile").toURI()));
          } catch (URISyntaxException e) {
             throw Throwables.propagate(e);
          }

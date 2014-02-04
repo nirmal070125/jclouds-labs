@@ -18,7 +18,7 @@
 FROM centos:6.4
 MAINTAINER Andrea Turli <andrea.turli@gmail.com>
 
-#RUN yum -y groupinstall 'Development Tools'
+RUN yum -y groupinstall 'Development Tools'
 RUN yum -y install openssh-server openssh-clients
 
 RUN chkconfig sshd on

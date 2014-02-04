@@ -73,9 +73,9 @@ public class DockerExperimentLiveTest extends BaseDockerApiLiveTest {
       int numNodes = 1;
       ComputeService compute = context.getComputeService();
       Template template = compute.templateBuilder().smallest().osFamily(OsFamily.UBUNTU).os64Bit(true)
-              .osVersionMatches("latest").osDescriptionMatches("ubuntu/sshd:latest").build();
+              .osVersionMatches("latest").osDescriptionMatches("jclouds/ubuntu:latest").build();
       Statement bootInstructions = AdminAccess.standard();
-      template.getOptions()//.runScript(bootInstructions)
+      template.getOptions().runScript(bootInstructions)
               .inboundPorts(22, 80, 8080);
 
       Set<? extends NodeMetadata> nodes = context.getComputeService().createNodesInGroup(TEST_LAUNCH_CLUSTER, numNodes, template);
@@ -96,43 +96,14 @@ public class DockerExperimentLiveTest extends BaseDockerApiLiveTest {
       });
    }
 
-   @Test
+   @Test(dependsOnMethods = "testLaunchUbuntuServerWithInboundPorts")
    public void testLaunchUbuntuCluster() throws RunNodesException {
       int numNodes = 5;
       ComputeService compute = context.getComputeService();
-      Template template = compute.templateBuilder().smallest().osFamily(OsFamily.UBUNTU).os64Bit(true)
-              .osVersionMatches("latest").osDescriptionMatches("ubuntu/sshd:latest").build();
-      Statement bootInstructions = AdminAccess.standard();
-      template.getOptions()//.runScript(bootInstructions)
-              .inboundPorts(22);
-
-      Set<? extends NodeMetadata> nodes = context.getComputeService().createNodesInGroup(TEST_LAUNCH_CLUSTER, numNodes, template);
-      assertEquals(numNodes, nodes.size(), "wrong number of nodes");
-      for (NodeMetadata node : nodes) {
-         assertTrue(node.getGroup().equals(TEST_LAUNCH_CLUSTER));
-         logger.debug("Created Node: %s", node);
-         SshClient client = context.utils().sshForNode().apply(node);
-         client.connect();
-         ExecResponse hello = client.exec("echo hello");
-         assertEquals(hello.getOutput().trim(), "hello");
-      }
-      context.getComputeService().destroyNodesMatching(new Predicate<NodeMetadata>() {
-         @Override
-         public boolean apply(NodeMetadata input) {
-            return input.getGroup().contains(TEST_LAUNCH_CLUSTER);
-         }
-      });
-   }
-
-   @Test
-   public void testLaunchCentosCluster() throws RunNodesException, IOException {
-      int numNodes = 10;
-      ComputeService compute = context.getComputeService();
       Template template = compute.templateBuilder().smallest().osFamily(OsFamily.CENTOS).os64Bit(true)
-              .osDescriptionMatches("jclouds/centos:latest").build();
+              .osVersionMatches("latest").osDescriptionMatches("jclouds/centos:latest").build();
       Statement bootInstructions = AdminAccess.standard();
-      template.getOptions()//.runScript(bootInstructions)
-              .overrideLoginPassword("password")
+      template.getOptions().runScript(bootInstructions)
               .inboundPorts(22);
 
       Set<? extends NodeMetadata> nodes = context.getComputeService().createNodesInGroup(TEST_LAUNCH_CLUSTER, numNodes, template);

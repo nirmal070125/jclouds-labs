@@ -91,7 +91,7 @@ public class DockerComputeServiceAdapterLiveTest extends BaseDockerApiLiveTest {
       // todo this is an hack as I'm using host-only IF
       Map<String,List<Map<String,String>>> portBindings = guest.getHostConfig().getPortBindings();
       int loginPort = Integer.parseInt(portBindings.get("22/tcp").get(0).get("HostPort"));
-      SshClient ssh = sshFactory.create(HostAndPort.fromParts("172.18.42.1", loginPort), creds);
+      SshClient ssh = sshFactory.create(HostAndPort.fromParts("172.18.42.43", loginPort), creds);
       try {
          ssh.connect();
          ExecResponse hello = ssh.exec("echo hello");
