@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import org.jclouds.compute.ComputeServiceAdapter.NodeAndInitialCredentials;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.Hardware;
@@ -34,6 +36,7 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.functions.DefaultCredentialsFromImageOrOverridingCredentials;
 import org.jclouds.compute.strategy.PrioritizeCredentialsFromTemplate;
 import org.jclouds.docker.DockerApi;
+import org.jclouds.docker.DockerApiMetadata;
 import org.jclouds.docker.compute.strategy.DockerComputeServiceAdapter;
 import org.jclouds.docker.domain.Container;
 import org.jclouds.domain.LoginCredentials;
@@ -91,7 +94,7 @@ public class DockerComputeServiceAdapterLiveTest extends BaseDockerApiLiveTest {
       // todo this is an hack as I'm using host-only IF
       Map<String,List<Map<String,String>>> portBindings = guest.getHostConfig().getPortBindings();
       int loginPort = Integer.parseInt(portBindings.get("22/tcp").get(0).get("HostPort"));
-      SshClient ssh = sshFactory.create(HostAndPort.fromParts("172.18.42.43", loginPort), creds);
+      SshClient ssh = sshFactory.create(HostAndPort.fromParts("192.168.42.43", loginPort), creds);
       try {
          ssh.connect();
          ExecResponse hello = ssh.exec("echo hello");

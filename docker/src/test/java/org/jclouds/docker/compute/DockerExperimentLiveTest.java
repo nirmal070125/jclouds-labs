@@ -28,8 +28,6 @@ import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.reference.ComputeServiceConstants;
-import org.jclouds.docker.compute.features.RemoteApi;
-import org.jclouds.io.Payload;
 import org.jclouds.logging.Logger;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.scriptbuilder.domain.Statement;

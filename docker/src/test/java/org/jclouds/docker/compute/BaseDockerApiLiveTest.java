@@ -17,15 +17,18 @@
 package org.jclouds.docker.compute;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import com.google.inject.Module;
 import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.docker.DockerApi;
 import org.jclouds.docker.compute.features.internal.Archives;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
+import org.jclouds.sshj.config.SshjSshClientModule;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,6 +52,11 @@ public class BaseDockerApiLiveTest extends BaseApiLiveTest<DockerApi> {
 
    public BaseDockerApiLiveTest() {
       provider = "docker";
+   }
+
+   @Override
+   protected Iterable<Module> setupModules() {
+      return ImmutableSet.<Module> of(getLoggingModule(), new SshjSshClientModule());
    }
 
    @Override

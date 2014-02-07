@@ -63,7 +63,7 @@ public class Config {
    @SerializedName("Image")
    private String image;
    @SerializedName("Volumes")
-   private Map<String, Object> volumes;
+   private Map<String, ?> volumes;
    @SerializedName("VolumesFrom")
    private String volumesFrom;
    @SerializedName("WorkingDir")
@@ -71,8 +71,8 @@ public class Config {
 
    Config(String hostname, String user, int memory, int memorySwap, boolean attachStdin, boolean attachStdout,
           boolean attachStderr, Map<String, ?> exposedPorts, boolean tty, boolean openStdin, boolean stdinOnce, List<String> env,
-          @Nullable List<String> cmd, List<String> dns, String image, @Nullable Map<String, Object> volumes, String volumesFrom,
-          String workingDir) {
+          @Nullable List<String> cmd, List<String> dns, String image, @Nullable Map<String, ?> volumes,
+          String volumesFrom, String workingDir) {
       this.hostname = hostname;
       this.user = user;
       this.memory = memory;
@@ -88,7 +88,7 @@ public class Config {
       this.cmd = cmd == null ? Lists.<String>newArrayList() : cmd;
       this.dns = dns;
       this.image = image;
-      this.volumes = volumes == null ? Maps.<String, Object>newHashMap() : volumes;
+      this.volumes = volumes;
       this.volumesFrom = volumesFrom;
       this.workingDir = workingDir;
    }
@@ -153,7 +153,7 @@ public class Config {
       return image;
    }
 
-   public Map<String, Object> getVolumes() {
+   public Map<String, ?> getVolumes() {
       return volumes;
    }
 
@@ -213,7 +213,7 @@ public class Config {
       private ImmutableList.Builder<String> cmd = ImmutableList.builder();
       private List<String> dns;
       private String image;
-      private ImmutableMap.Builder<String, Object> volumes = ImmutableMap.builder();
+      private Map<String, ?> volumes;
       private String volumesFrom;
       private String workingDir;
 
@@ -293,9 +293,8 @@ public class Config {
          return this;
       }
 
-      public Builder volumes(Map<String, Object> volumes) {
-         this.volumes = ImmutableMap.builder();
-         this.volumes.putAll(volumes);
+      public Builder volumes(Map<String, ?> volumes) {
+         this.volumes = volumes;
          return this;
       }
 
@@ -311,7 +310,7 @@ public class Config {
 
       public Config build() {
          return new Config(hostname, user, memory, memorySwap, attachStdin, attachStdout, attachStderr, exposedPorts,
-                 tty, openStdin, stdinOnce, env, cmd.build(), dns, image, volumes.build(), volumesFrom, workingDir);
+                 tty, openStdin, stdinOnce, env, cmd.build(), dns, image, volumes, volumesFrom, workingDir);
       }
 
       public Builder fromConfig(Config in) {

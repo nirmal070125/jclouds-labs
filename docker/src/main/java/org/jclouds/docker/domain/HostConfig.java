@@ -30,7 +30,7 @@ public class HostConfig {
    @SerializedName("ContainerIDFile")
    private String containerIDFile;
    @SerializedName("Binds")
-   private String binds;
+   private List<String> binds;
    @SerializedName("Privileged")
    private boolean privileged;
    @SerializedName("PortBindings")
@@ -40,8 +40,9 @@ public class HostConfig {
    @SerializedName("PublishAllPorts")
    private boolean publishAllPorts;
 
-   public HostConfig(String containerIDFile, String binds, boolean privileged,
-                     Map<String, List<Map<String, String>>> portBindings, @Nullable List<String> links, boolean publishAllPorts) {
+   public HostConfig(String containerIDFile, List<String> binds, boolean privileged,
+                     Map<String, List<Map<String, String>>> portBindings, @Nullable List<String> links,
+                     boolean publishAllPorts) {
       this.containerIDFile = containerIDFile;
       this.binds = binds;
       this.privileged = privileged;
@@ -54,7 +55,7 @@ public class HostConfig {
       return containerIDFile;
    }
 
-   public String getBinds() {
+   public List<String> getBinds() {
       return binds;
    }
 
@@ -98,7 +99,7 @@ public class HostConfig {
    public static final class Builder {
 
       private String containerIDFile;
-      private String binds;
+      private List<String> binds;
       private boolean privileged;
       private Map<String, List<Map<String, String>>> portBindings;
       private List<String> links;
@@ -109,7 +110,7 @@ public class HostConfig {
          return this;
       }
 
-      public Builder binds(String binds) {
+      public Builder binds(List<String> binds) {
          this.binds = binds;
          return this;
       }
@@ -133,7 +134,6 @@ public class HostConfig {
          this.publishAllPorts = publishAllPorts;
          return this;
       }
-
 
       public HostConfig build() {
          return new HostConfig(containerIDFile, binds, privileged, portBindings, links, publishAllPorts);

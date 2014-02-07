@@ -78,6 +78,7 @@ public class DockerApiMetadata extends BaseHttpApiMetadata<DockerApi> {
                .defaultProperties(DockerApiMetadata.defaultProperties())
                .view(typeToken(ComputeServiceContext.class))
                .defaultModules(ImmutableSet.<Class<? extends Module>>of(
+                       //SshjSshClientModule.class,
                        DockerHttpApiModule.class,
                        DockerParserModule.class,
                        DockerComputeServiceContextModule.class));

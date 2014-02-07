@@ -88,18 +88,27 @@ public class DockerComputeServiceAdapter implements
       checkNotNull(template.getOptions(), "template options was null");
 
       String imageId = checkNotNull(template.getImage().getId(), "template image id must not be null");
+      String loginUser = template.getOptions().getLoginUser() == null ? "root" : template.getOptions().getLoginUser();
+      String loginUserPassword = template.getOptions().getLoginPassword() == null ? "password" : template.getOptions()
+              .getLoginUser();
 
       Map<String, Object> exposedPorts = Maps.newHashMap();
       int[] inboundPorts = template.getOptions().getInboundPorts();
       for (int inboundPort : inboundPorts) {
          exposedPorts.put(inboundPort + "/tcp", Maps.newHashMap());
       }
+
+      Map<String, Object> volumes = Maps.newLinkedHashMap();
+      // todo create a DockerOptions.volumes
+      //volumes = template.getOptions().getInboundPorts();
+      volumes.put("/tmp", Maps.newHashMap());
+
       Config config = Config.builder()
               .image(imageId)
               .cmd(ImmutableList.of("/usr/sbin/sshd", "-D"))
               .attachStdout(true)
               .attachStderr(true)
-              .volumesFrom("")
+              .volumes(volumes)
               .workingDir("")
               .exposedPorts(exposedPorts)
               .build();
@@ -118,14 +127,17 @@ public class DockerComputeServiceAdapter implements
       }
 
       HostConfig hostConfig = HostConfig.builder()
+              // todo generalize bindings
+              .binds(ImmutableList.of("/var/lib/docker:/tmp"))
               .portBindings(portBindings)
               .publishAllPorts(true)
               .privileged(true)
               .build();
       api.getRemoteApi().startContainer(container.getId(), hostConfig);
       container = api.getRemoteApi().inspectContainer(container.getId());
+
       return new NodeAndInitialCredentials<Container>(container, container.getId() + "",
-              LoginCredentials.builder().user("root").password("password").build());
+              LoginCredentials.builder().user(loginUser).password(loginUserPassword).build());
    }
 
    @Override
